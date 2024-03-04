@@ -7,8 +7,6 @@ MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
 
 MONGO_DATABASE = "cyberpunk-db"
 
-MONGO_DATABASE_PRODUCT_COLLECTION = "products"
-
 
 def get_db():
     client = motor.motor_asyncio.AsyncIOMotorClient(
