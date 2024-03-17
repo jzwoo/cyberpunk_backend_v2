@@ -1,18 +1,23 @@
 version: "3.8"
 
 services:
-  app:
+  cyber-punk-backend:
     build: .
     ports:
       - "8000:8000"
     depends_on:
-      - mongo
+      - cyber-punk-db
     environment:
+      # mongo related credentials
       MONGO_USERNAME: cyberpunk
       MONGO_PASSWORD: password
-      MONGO_DB_URI: mongodb://mongo:27017/cyberpunk-db
+      MONGO_DB_URI: mongodb://cyber-punk-db:27017/cyberpunk-db
 
-  mongo:
+      # token secrets
+      JWT_SECRET: your_secret_key1
+      REFRESH_TOKEN_SECRET: your_secret_key2
+
+  cyber-punk-db:
     image: mongo
     restart: always
     environment:

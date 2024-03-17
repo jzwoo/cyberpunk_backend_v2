@@ -12,7 +12,7 @@ class ProductDAL(DAL):
         return await self._get_items(query)
 
     async def get_product(self, product_uuid: str):
-        return await self._get_item(product_uuid)
+        return await self._get_item_by_uuid(product_uuid)
 
     async def create_product(self, product: ProductIn):
         return await self._create_item(product)

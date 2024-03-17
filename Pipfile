@@ -8,6 +8,8 @@ uvicorn = "*"
 fastapi = "*"
 motor = "*"
 pytest = "*"
+bcrypt = "*"
+pyjwt = "*"
 
 [dev-packages]
 
