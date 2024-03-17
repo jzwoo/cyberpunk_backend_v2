@@ -4,7 +4,7 @@ from users.utils.secret import hash_password
 
 
 async def register_controller(user_dal: UserDAL, user_in: UserIn):
-    if await user_dal.get_user_by_username(user_in.username) is not None:
+    if await user_dal.get_user(user_in.username) is not None:
         raise ValueError("Duplicate username.")
 
     # salt and hash password

@@ -6,7 +6,7 @@ from users.utils.secret import is_password_valid
 
 
 async def login_controller(user_dal: UserDAL, credentials: HTTPBasicCredentials):
-    if (user := await user_dal.get_user_by_username(credentials.username)) is None:
+    if (user := await user_dal.get_user(credentials.username)) is None:
         raise ValueError("Incorrect username")
 
     if not is_password_valid(
@@ -17,8 +17,8 @@ async def login_controller(user_dal: UserDAL, credentials: HTTPBasicCredentials)
     refresh_token = generate_refresh_token(user)
     access_token = generate_access_token(user)
 
-    updated_user = await user_dal.update_user(
-        user_uuid=user.get("uuid"), user_updates={"refresh_token": refresh_token}
+    updated_user = await user_dal.set_user_refresh_token(
+        user.get("username"), refresh_token
     )
 
     return access_token, refresh_token, updated_user
