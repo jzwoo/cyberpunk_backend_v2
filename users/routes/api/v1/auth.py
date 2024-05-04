@@ -1,5 +1,11 @@
+import jwt
 from fastapi import APIRouter, HTTPException, Request, Response, Depends
-from fastapi.security import HTTPBasicCredentials
+from fastapi.security import (
+    HTTPBasicCredentials,
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
+from pydantic import ValidationError
 
 from db.db import get_db
 from users.controllers.login_controller import login_controller
@@ -13,6 +19,8 @@ from users.utils.jwt_utils import decode_access_token, decode_refresh_token
 auth = APIRouter()
 
 user_dal = UserDAL(db=get_db())
+
+auth_scheme = HTTPBearer()
 
 tags = ["Auth"]
 
@@ -61,8 +69,19 @@ async def login(credentials: HTTPBasicCredentials, response: Response):
     response_description="Logout",
     tags=tags,
 )
-async def logout(response: Response, requester=Depends(decode_access_token)):
-    await logout_controller(user_dal, requester.get("username"))
+async def logout(
+    response: Response, credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
+):
+    try:
+        requester = decode_access_token(credentials.credentials)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except ValidationError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    await logout_controller(user_dal, requester.username)
 
     # delete cookie from response
     response.delete_cookie("jwt")
@@ -81,10 +100,18 @@ async def refresh(request: Request, response: Response):
         raise HTTPException(status_code=401)
 
     refresh_token = cookies.get("jwt")
-    payload = decode_refresh_token(refresh_token)
+
+    try:
+        requester = decode_refresh_token(refresh_token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except ValidationError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     access_token, refresh_token, user = await refresh_controller(
-        user_dal, payload.get("username")
+        user_dal, requester.username
     )
 
     # set cookie in the response

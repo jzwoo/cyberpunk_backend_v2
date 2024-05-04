@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from users.models.token import TokenIn
+
 SECRET_KEY = os.environ.get("JWT_SECRET")
 REFRESH_TOKEN_SECRET = os.environ.get("REFRESH_TOKEN_SECRET")
 
@@ -41,28 +43,15 @@ def generate_refresh_token(user):
     return token
 
 
-def decode_access_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    try:
-        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
+def decode_access_token(token: str) -> TokenIn:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
-        requester = {
-            "uuid": payload["uuid"],
-            "username": payload["username"],
-        }
-
-        return requester
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    # TODO: if token is from a different source. e.g. Google, Facebook, etc., need to do conversion first
+    return TokenIn(**payload)
 
 
-def decode_refresh_token(token):
+def decode_refresh_token(token) -> TokenIn:
     payload = jwt.decode(token, REFRESH_TOKEN_SECRET, algorithms=["HS256"])
 
-    requester = {
-        "uuid": payload["uuid"],
-        "username": payload["username"],
-    }
-
-    return requester
+    # TODO: if token is from a different source. e.g. Google, Facebook, etc., need to do conversion first
+    return TokenIn(**payload)
