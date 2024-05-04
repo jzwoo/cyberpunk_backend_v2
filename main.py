@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.allowed_origins import allowed_origins
 from products.routes.api.v1.product import product
 from users.routes.api.v1.auth import auth
+from users.routes.api.v1.user import user
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ app.add_middleware(
 
 app.include_router(product)
 app.include_router(auth)
+app.include_router(user)
 
 
 @app.get("/")

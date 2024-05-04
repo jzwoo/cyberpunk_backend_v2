@@ -8,10 +8,10 @@ from fastapi.security import (
 from pydantic import ValidationError
 
 from db.db import get_db
-from users.controllers.login_controller import login_controller
-from users.controllers.logout_controller import logout_controller
-from users.controllers.refresh_controller import refresh_controller
-from users.controllers.register_controller import register_controller
+from users.controllers.auth.login_controller import login_controller
+from users.controllers.auth.logout_controller import logout_controller
+from users.controllers.auth.refresh_controller import refresh_controller
+from users.controllers.auth.register_controller import register_controller
 from users.dal.user_DAL import UserDAL
 from users.models.user import UserIn, UserOut, LoginSuccessResponse
 from users.utils.jwt_utils import decode_access_token, decode_refresh_token

@@ -10,6 +10,7 @@ class UserIn(BaseModel):
 
 
 class UserOut(UUID, BaseModel):
+    username: str
     name: str
 
 
