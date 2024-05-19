@@ -1,4 +1,4 @@
-from models.common import DAL
+from common.models.dal import DAL
 from product_svc.models.product import ProductIn
 
 
@@ -18,4 +18,4 @@ class ProductDAL(DAL):
         return await self._create_item(product)
 
     async def delete_product(self, product_uuid: str):
-        return await self._delete_item(product_uuid)
+        return await self._delete_item({"uuid": product_uuid})

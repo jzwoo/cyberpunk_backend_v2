@@ -9,6 +9,7 @@ db.createUser({
 // alternatively, "db.createCollection" creates a new collection without adding data
 // db.createCollection('asset')
 
+// db.createCollection('products')
 db.products.insert([
     {
         uuid: "16524425-56f3-41d3-a0f7-7c52b66030d1",
@@ -111,5 +112,5 @@ db.products.insert([
     }
 ])
 
-// db.createCollection('products')
 db.createCollection('users')
+db.createCollection('carts')

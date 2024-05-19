@@ -1,6 +1,6 @@
 from pymongo import ReturnDocument
 
-from models.common import DAL
+from common.models.dal import DAL
 from user_svc.models.user import UserIn
 
 

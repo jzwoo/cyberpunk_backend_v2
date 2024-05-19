@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.allowed_origins import allowed_origins
+from cart_svc.routes.api.v1.cart import cart
 from product_svc.routes.api.v1.product import product
 from user_svc.routes.api.v1.auth import auth
 from user_svc.routes.api.v1.user import user
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(cart)
 app.include_router(product)
 app.include_router(auth)
 app.include_router(user)

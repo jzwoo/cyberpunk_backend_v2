@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from models.common import UUID
+from common.models.uuid import UUID
 
 
 class ProductImage(BaseModel):
