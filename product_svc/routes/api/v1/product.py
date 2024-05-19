@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
 
 from db.db import get_db
-from products.controllers.create_product_controller import create_product_controller
-from products.controllers.delete_product_controller import delete_product_controller
-from products.controllers.get_product_controller import get_product_controller
-from products.controllers.get_products_controller import get_products_controller
-from products.dal.product_DAL import ProductDAL
-from products.models.product import ProductOut, ProductIn
+from product_svc.controllers.create_product_controller import create_product_controller
+from product_svc.controllers.delete_product_controller import delete_product_controller
+from product_svc.controllers.get_product_controller import get_product_controller
+from product_svc.controllers.get_products_controller import get_products_controller
+from product_svc.dal.product_DAL import ProductDAL
+from product_svc.models.product import ProductOut, ProductIn
 
 product = APIRouter()
 

@@ -1,8 +1,8 @@
 from fastapi.security import HTTPBasicCredentials
 
-from users.dal.user_DAL import UserDAL
-from users.utils.jwt_utils import generate_refresh_token, generate_access_token
-from users.utils.secret import is_password_valid
+from user_svc.dal.user_DAL import UserDAL
+from user_svc.utils.jwt_utils import generate_refresh_token, generate_access_token
+from user_svc.utils.secret import is_password_valid
 
 
 async def login_controller(user_dal: UserDAL, credentials: HTTPBasicCredentials):

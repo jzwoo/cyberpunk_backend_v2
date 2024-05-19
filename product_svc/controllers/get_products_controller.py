@@ -1,4 +1,4 @@
-from products.dal.product_DAL import ProductDAL
+from product_svc.dal.product_DAL import ProductDAL
 
 
 async def get_products_controller(product_dal: ProductDAL, query: dict = None):

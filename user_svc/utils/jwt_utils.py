@@ -2,10 +2,7 @@ import os
 import jwt
 from datetime import datetime, timedelta
 
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
-from users.models.token import TokenIn
+from user_svc.models.token import TokenIn
 
 SECRET_KEY = os.environ.get("JWT_SECRET")
 REFRESH_TOKEN_SECRET = os.environ.get("REFRESH_TOKEN_SECRET")

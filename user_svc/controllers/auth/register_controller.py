@@ -1,6 +1,6 @@
-from users.dal.user_DAL import UserDAL
-from users.models.user import UserIn
-from users.utils.secret import hash_password
+from user_svc.dal.user_DAL import UserDAL
+from user_svc.models.user import UserIn
+from user_svc.utils.secret import hash_password
 
 
 async def register_controller(user_dal: UserDAL, user_in: UserIn):

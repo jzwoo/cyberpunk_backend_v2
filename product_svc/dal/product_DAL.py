@@ -1,5 +1,5 @@
 from models.common import DAL
-from products.models.product import ProductIn
+from product_svc.models.product import ProductIn
 
 
 class ProductDAL(DAL):

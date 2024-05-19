@@ -1,4 +1,4 @@
-from products.dal.product_DAL import ProductDAL
+from product_svc.dal.product_DAL import ProductDAL
 
 
 async def delete_product_controller(product_dal: ProductDAL, product_uuid: str):

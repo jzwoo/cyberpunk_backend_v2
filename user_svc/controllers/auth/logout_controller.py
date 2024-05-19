@@ -1,4 +1,4 @@
-from users.dal.user_DAL import UserDAL
+from user_svc.dal.user_DAL import UserDAL
 
 
 async def logout_controller(user_dal: UserDAL, username: str):

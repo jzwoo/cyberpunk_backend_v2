@@ -1,5 +1,5 @@
-from users.dal.user_DAL import UserDAL
-from users.utils.jwt_utils import generate_refresh_token, generate_access_token
+from user_svc.dal.user_DAL import UserDAL
+from user_svc.utils.jwt_utils import generate_refresh_token, generate_access_token
 
 
 async def refresh_controller(user_dal: UserDAL, username: str):

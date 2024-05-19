@@ -4,10 +4,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import ValidationError
 
 from db.db import get_db
-from users.controllers.user.get_user_controller import get_user_controller
-from users.dal.user_DAL import UserDAL
-from users.models.user import UserOut
-from users.utils.jwt_utils import decode_access_token
+from user_svc.controllers.user.get_user_controller import get_user_controller
+from user_svc.dal.user_DAL import UserDAL
+from user_svc.models.user import UserOut
+from user_svc.utils.jwt_utils import decode_access_token
 
 user = APIRouter()
 

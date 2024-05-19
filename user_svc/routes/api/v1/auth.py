@@ -8,13 +8,13 @@ from fastapi.security import (
 from pydantic import ValidationError
 
 from db.db import get_db
-from users.controllers.auth.login_controller import login_controller
-from users.controllers.auth.logout_controller import logout_controller
-from users.controllers.auth.refresh_controller import refresh_controller
-from users.controllers.auth.register_controller import register_controller
-from users.dal.user_DAL import UserDAL
-from users.models.user import UserIn, UserOut, LoginSuccessResponse
-from users.utils.jwt_utils import decode_access_token, decode_refresh_token
+from user_svc.controllers.auth.login_controller import login_controller
+from user_svc.controllers.auth.logout_controller import logout_controller
+from user_svc.controllers.auth.refresh_controller import refresh_controller
+from user_svc.controllers.auth.register_controller import register_controller
+from user_svc.dal.user_DAL import UserDAL
+from user_svc.models.user import UserIn, UserOut, LoginSuccessResponse
+from user_svc.utils.jwt_utils import decode_access_token, decode_refresh_token
 
 auth = APIRouter()
 
