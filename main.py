@@ -2,10 +2,10 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.allowed_origins import allowed_origins
-from cart_svc.routes.api.v1.cart import cart
-from product_svc.routes.api.v1.product import product
-from user_svc.routes.api.v1.auth import auth
-from user_svc.routes.api.v1.user import user
+from microservices.cart_svc.routes.api.v1.cart import cart
+from microservices.product_svc.routes.api.v1.product import product
+from microservices.user_svc.routes.api.v1.auth import auth
+from microservices.user_svc.routes.api.v1.user import user
 
 app = FastAPI()
 
