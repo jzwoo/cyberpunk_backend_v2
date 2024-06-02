@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class Cart(BaseModel):
-    username: str
+    provider: str
+    user_id: str
     likes: list[str] = []
     cart: list[str] = []

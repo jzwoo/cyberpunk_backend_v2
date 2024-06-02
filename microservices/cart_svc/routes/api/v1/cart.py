@@ -1,8 +1,7 @@
-import jwt
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import ValidationError
 
+from common.providers.providers import SUPPORTED_PROVIDERS
 from microservices.cart_svc.controllers.create_or_get_cart_controller import (
     create_or_get_cart_controller,
 )
@@ -12,7 +11,6 @@ from microservices.cart_svc.controllers.create_or_update_cart_controller import 
 from microservices.cart_svc.dal.cart_DAL import CartDAL
 from microservices.cart_svc.models.cart import Cart
 from db.db import get_db
-from microservices.user_svc.utils.jwt_utils import decode_access_token
 
 cart = APIRouter()
 
@@ -24,54 +22,61 @@ tags = ["Cart"]
 
 
 @cart.get(
-    "/api/v1/carts/{username}",
+    "/api/v1/carts/{user_id}",
     response_description="Get cart",
     response_model=Cart,
     tags=tags,
 )
 async def get_cart(
-    username: str, credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
+    user_id: str,
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
+    if (provider := request.headers.get("X-Provider")) is None:
+        raise HTTPException(status_code=400, detail="Provider header is required")
+
+    # get the verify_access_token function for the provider
+    if (verify_access_token := SUPPORTED_PROVIDERS.get(provider)) is None:
+        raise HTTPException(status_code=400, detail="Invalid provider")
+
     try:
-        requester = decode_access_token(credentials.credentials)
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    except ValidationError:
+        verify_access_token(credentials.credentials)
+    except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    if requester.username != username:
-        raise HTTPException(status_code=403)
-
-    return await create_or_get_cart_controller(cart_dal, username)
+    return await create_or_get_cart_controller(
+        cart_dal, provider=provider, user_id=user_id
+    )
 
 
 @cart.put(
-    "/api/v1/carts/{username}",
+    "/api/v1/carts/{user_id}",
     response_description="Create or update cart",
     response_model=Cart,
     tags=tags,
 )
 async def update_or_create_cart(
-    username: str,
+    user_id: str,
     updated_cart: Cart,
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
+    if (provider := request.headers.get("X-Provider")) is None:
+        raise HTTPException(status_code=400, detail="Provider header is required")
+
+    # get the verify_access_token function for the provider
+    if (verify_access_token := SUPPORTED_PROVIDERS.get(provider)) is None:
+        raise HTTPException(status_code=400, detail="Invalid provider")
+
     try:
-        requester = decode_access_token(credentials.credentials)
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    except ValidationError:
+        verify_access_token(credentials.credentials)
+    except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    if requester.username != username:
-        raise HTTPException(status_code=403)
+    # for create if not exists
+    updated_cart.provider = provider
+    updated_cart.user_id = user_id
 
-    # ensure that the updated username is the requester's username
-    # for update, the username doesn't matter, but it needs to be matching for create
-    updated_cart.username = username
-
-    return await create_or_update_cart_controller(cart_dal, username, updated_cart)
+    return await create_or_update_cart_controller(
+        cart_dal, provider, user_id, updated_cart
+    )

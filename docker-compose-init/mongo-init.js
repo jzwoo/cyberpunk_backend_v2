@@ -10,6 +10,7 @@ db.createUser({
 // db.createCollection('asset')
 
 // db.createCollection('products')
+db.createCollection('carts')
 db.products.insert([
     {
         uuid: "16524425-56f3-41d3-a0f7-7c52b66030d1",
@@ -155,6 +156,3 @@ db.products.insert([
         quantity: 2
     }
 ])
-
-db.createCollection('users')
-db.createCollection('carts')

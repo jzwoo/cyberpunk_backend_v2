@@ -4,8 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.allowed_origins import allowed_origins
 from microservices.cart_svc.routes.api.v1.cart import cart
 from microservices.product_svc.routes.api.v1.product import product
-from microservices.user_svc.routes.api.v1.auth import auth
-from microservices.user_svc.routes.api.v1.user import user
 
 app = FastAPI()
 
@@ -19,8 +17,9 @@ app.add_middleware(
 
 app.include_router(cart)
 app.include_router(product)
-app.include_router(auth)
-app.include_router(user)
+# temporary disable auth and user routes
+# app.include_router(auth)
+# app.include_router(user)
 
 
 @app.get("/")
