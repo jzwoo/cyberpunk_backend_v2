@@ -40,7 +40,7 @@ async def get_cart(
         raise HTTPException(status_code=400, detail="Invalid provider")
 
     try:
-        verify_access_token(credentials.credentials)
+        await verify_access_token(credentials.credentials)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -69,7 +69,7 @@ async def update_or_create_cart(
         raise HTTPException(status_code=400, detail="Invalid provider")
 
     try:
-        verify_access_token(credentials.credentials)
+        await verify_access_token(credentials.credentials)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
