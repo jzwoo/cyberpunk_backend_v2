@@ -15,6 +15,9 @@ services:
       JWT_SECRET: your_secret_key1
       REFRESH_TOKEN_SECRET: your_secret_key2
 
+      # idp
+      GOOGLE_CLIENT_ID: 753093070123-iffmlkcso3fih13r5bb49bkvpa8i512h.apps.googleusercontent.com
+
   cyber-punk-db:
     image: mongo
     ports:

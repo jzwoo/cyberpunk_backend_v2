@@ -1,15 +1,13 @@
-import httpx
+import os
 
-
-GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo"
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 
 async def verify_access_token(access_token: str):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            url=GOOGLE_TOKEN_INFO_URL,
-            params={"access_token": access_token},
+    try:
+        id_token.verify_oauth2_token(
+            access_token, requests.Request(), os.environ.get("GOOGLE_CLIENT_ID")
         )
-
-        response.raise_for_status()
-        return response.json()
+    except ValueError:
+        raise ValueError("Invalid token")

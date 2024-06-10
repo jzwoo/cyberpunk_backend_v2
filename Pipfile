@@ -9,8 +9,9 @@ fastapi = "*"
 motor = "*"
 pytest = "*"
 bcrypt = "*"
-pyjwt = "*"
 httpx = "*"
+google-auth = "*"
+requests = "*"
 
 [dev-packages]
 
