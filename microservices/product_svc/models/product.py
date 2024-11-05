@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from common.models.uuid import UUID
+from common.models.id import Id
 
 
 class ProductImage(BaseModel):
@@ -16,5 +16,5 @@ class ProductIn(BaseModel):
     quantity: int
 
 
-class ProductOut(UUID, ProductIn):
+class ProductOut(Id, ProductIn):
     pass

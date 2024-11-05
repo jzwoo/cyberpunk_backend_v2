@@ -1,3 +1,5 @@
+from typing import Optional
+
 from microservices.cart_svc.models.cart import Cart
 from common.models.dal import DAL
 
@@ -8,7 +10,7 @@ class CartDAL(DAL):
     def __init__(self, db):
         super().__init__(db, self.__collection_name)
 
-    async def get_carts(self, query: dict = None):
+    async def get_carts(self, query: Optional[dict] = None):
         return await self._get_items(query)
 
     async def get_cart(self, provider: str, user_id: str):

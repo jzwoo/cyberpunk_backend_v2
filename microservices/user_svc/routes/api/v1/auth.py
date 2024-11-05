@@ -71,11 +71,7 @@ async def login(credentials: HTTPBasicCredentials, response: Response):
         raise HTTPException(status_code=401)
 
 
-@auth.post(
-    "/api/v1/logout",
-    response_description="Logout",
-    tags=tags,
-)
+@auth.post("/api/v1/logout", response_description="Logout", tags=tags)
 async def logout(
     response: Response, credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
 ):

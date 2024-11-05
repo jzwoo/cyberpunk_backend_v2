@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from common.models.uuid import UUID
+from common.models.id import Id
 
 
 class UserIn(BaseModel):
@@ -9,7 +9,7 @@ class UserIn(BaseModel):
     name: str
 
 
-class UserOut(UUID, BaseModel):
+class UserOut(Id, BaseModel):
     username: str
     name: str
 

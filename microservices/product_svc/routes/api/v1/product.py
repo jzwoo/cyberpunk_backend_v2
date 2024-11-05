@@ -42,7 +42,7 @@ async def get_products():
 async def get_product(product_uuid: str):
     try:
         return await get_product_controller(product_dal, product_uuid)
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(status_code=404, detail="Product is not found.")
 
 
@@ -66,5 +66,5 @@ async def create_product(new_product: ProductIn):
 async def delete_product(product_uuid: str):
     try:
         await delete_product_controller(product_dal, product_uuid)
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(status_code=404, detail="Product is not found.")
