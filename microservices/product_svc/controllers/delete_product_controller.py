@@ -1,8 +1,8 @@
 from microservices.product_svc.dal.product_DAL import ProductDAL
 
 
-async def delete_product_controller(product_dal: ProductDAL, product_uuid: str):
-    product = await product_dal.delete_product(product_uuid)
+async def delete_product_controller(product_dal: ProductDAL, product_id: str):
+    product = await product_dal.delete_product(product_id)
 
     if product is None:
         raise ValueError("Product does not exist.")
