@@ -7,11 +7,10 @@ name = "pypi"
 uvicorn = "*"
 fastapi = "*"
 motor = "*"
-pytest = "*"
-bcrypt = "*"
 httpx = "*"
 google-auth = "*"
 requests = "*"
+pyjwt = {extras = ["crypto"], version = "*"}
 
 [dev-packages]
 

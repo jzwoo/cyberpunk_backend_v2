@@ -1,6 +1,11 @@
-from pydantic import BaseModel
+from datetime import datetime
+
+from pydantic import BaseModel, EmailStr
 
 
-class TokenIn(BaseModel):
-    uuid: str
-    username: str
+class Token(BaseModel):
+    id: str
+    email: EmailStr
+    name: str
+    iat: datetime
+    exp: datetime

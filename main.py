@@ -2,8 +2,9 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.allowed_origins import allowed_origins
-from microservices.cart_svc.routes.api.v1.cart import cart
 from microservices.product_svc.routes.api.v1.product import product
+from microservices.user_svc.routes.api.v1.auth import auth
+from microservices.user_svc.routes.api.v1.cart import cart
 
 app = FastAPI()
 
@@ -15,11 +16,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth)
 app.include_router(cart)
 app.include_router(product)
-# temporary disable auth and user routes
-# app.include_router(auth)
-# app.include_router(user)
 
 
 @app.get("/")
@@ -28,4 +27,4 @@ async def root():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

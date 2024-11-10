@@ -1,24 +1,22 @@
-import jwt
-from fastapi import APIRouter, HTTPException, Request, Response, Depends
-from fastapi.security import (
-    HTTPBasicCredentials,
-    HTTPAuthorizationCredentials,
-    HTTPBearer,
-)
+from typing import Annotated
+
+from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from db.db import get_db
-from microservices.user_svc.controllers.auth.login_controller import login_controller
-from microservices.user_svc.controllers.auth.logout_controller import logout_controller
-from microservices.user_svc.controllers.auth.refresh_controller import (
-    refresh_controller,
-)
-from microservices.user_svc.controllers.auth.register_controller import (
-    register_controller,
-)
+from microservices.user_svc.controllers.auth.github import get_user_details
+from microservices.user_svc.controllers.auth.google import verify_id_token
 from microservices.user_svc.dal.user_DAL import UserDAL
-from microservices.user_svc.models.user import UserIn, UserOut, LoginSuccessResponse
+from microservices.user_svc.models.user import (
+    LoginSuccessResponse,
+    UserIn,
+    Identity,
+    UserOut,
+)
 from microservices.user_svc.utils.jwt_utils import (
+    generate_access_token,
+    generate_refresh_token,
     decode_access_token,
     decode_refresh_token,
 )
@@ -33,97 +31,88 @@ tags = ["Auth"]
 
 
 @auth.post(
-    "/api/v1/register",
-    response_description="Register",
-    response_model=UserOut,
-    tags=tags,
-)
-async def register(user: UserIn):
-    try:
-        return await register_controller(user_dal, user)
-    except ValueError as e:
-        raise HTTPException(status_code=409, detail=f"Duplicate information: {e}")
-
-
-@auth.post(
-    "/api/v1/login",
-    response_description="Login",
+    "/api/v1/auth/{provider}-login",
+    response_description="Social login",
     response_model=LoginSuccessResponse,
     tags=tags,
 )
-async def login(credentials: HTTPBasicCredentials, response: Response):
-    try:
-        access_token, refresh_token, user = await login_controller(
-            user_dal, credentials
-        )
+async def social_login(provider: str, token: Annotated[str, Body(embed=True)]):
+    if provider == "google":
+        id_info = await verify_id_token(token)
 
-        # set cookie in the response
-        response.set_cookie(
-            key="jwt",
-            value=refresh_token,
-            max_age=24 * 60 * 60 * 1000,
-            httponly=True,
-            samesite="strict",
-        )
+        user_email = id_info.get("email")
+        user_name = id_info.get("name")
+        user_id = id_info.get("sub")
+    elif provider == "github":
+        user_details = await get_user_details(token)
 
-        return LoginSuccessResponse(user=UserOut(**user), access_token=access_token)
-    except ValueError as e:
-        raise HTTPException(status_code=401)
+        user_email = user_details.get("email")
+        user_name = user_details.get("name")
+        user_id = user_details.get("id")
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported provider")
+
+    identity = Identity(provider=provider, user_id=user_id, name=user_name)
+
+    if (existing_user := await user_dal.get_user_by_email(email=user_email)) is None:
+        new_user = UserIn(name=user_name, email=user_email, identities=[identity])
+
+        user = UserOut(**await user_dal.create_user(new_user))
+    else:
+        curr_user = UserIn(**existing_user)
+        curr_user.name = user_name
+
+        if not curr_user.has_identity(provider):
+            curr_user.identities.append(identity)
+
+        user = UserOut(**await user_dal.update_user(curr_user, user_email))
+
+    access_token = generate_access_token(user)
+    refresh_token = generate_refresh_token(user)
+
+    # set refresh token
+    await user_dal.set_user_refresh_token(email=user_email, refresh_token=refresh_token)
+
+    return LoginSuccessResponse(
+        user=user, access_token=access_token, refresh_token=refresh_token
+    )
 
 
-@auth.post("/api/v1/logout", response_description="Logout", tags=tags)
-async def logout(
-    response: Response, credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
-):
+@auth.post("/api/v1/auth/logout", response_description="Logout", tags=tags)
+async def logout(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
     try:
         requester = decode_access_token(credentials.credentials)
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
     except ValidationError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    await logout_controller(user_dal, requester.username)
-
-    # delete cookie from response
-    response.delete_cookie("jwt")
+    await user_dal.unset_user_refresh_token(requester.email)
 
 
-@auth.get(
-    "/api/v1/refresh",
+@auth.post(
+    "/api/v1/auth/refresh",
     response_description="Refresh Token",
     response_model=LoginSuccessResponse,
     tags=tags,
 )
-async def refresh(request: Request, response: Response):
-    cookies = request.cookies
-
-    if cookies is None or "jwt" not in cookies:
-        raise HTTPException(status_code=401)
-
-    refresh_token = cookies.get("jwt")
-
+async def refresh(
+    refresh_token: Annotated[str, Body(embed=True)],
+):
     try:
         requester = decode_refresh_token(refresh_token)
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
     except ValidationError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    access_token, refresh_token, user = await refresh_controller(
-        user_dal, requester.username
-    )
+    if (existing_user := await user_dal.get_user_by_email(requester.email)) is None:
+        raise HTTPException(status_code=403)
 
-    # set cookie in the response
-    response.set_cookie(
-        key="jwt",
-        value=refresh_token,
-        max_age=24 * 60 * 60 * 1000,
-        httponly=True,
-        samesite="strict",
-    )
+    user = UserOut(**existing_user)
 
-    return LoginSuccessResponse(user=UserOut(**user), access_token=access_token)
+    access_token = generate_access_token(user)
+    refresh_token = generate_refresh_token(user)
+
+    # set refresh token
+    await user_dal.set_user_refresh_token(email=user.email, refresh_token=refresh_token)
+
+    return LoginSuccessResponse(
+        user=user, access_token=access_token, refresh_token=refresh_token
+    )
