@@ -1,0 +1,190 @@
+# deck sync --kong-addr http://localhost:8001 --state kong.yaml
+_format_version: "3.0"
+consumers:
+- jwt_secrets:
+  - algorithm: HS256
+    key: cyberpunk
+    secret: your_secret_key1
+  username: Cyberpunk
+plugins:
+- config:
+    anonymous: null
+    claims_to_verify:
+    - exp
+    cookie_names: []
+    header_names:
+    - Authorization
+    key_claim_name: iss
+    maximum_expiration: 0
+    realm: null
+    run_on_preflight: false
+    secret_is_base64: false
+    uri_param_names:
+    - jwt
+  enabled: true
+  instance_name: logout-access-token-check
+  name: jwt
+  protocols:
+  - http
+  - https
+  route: logout
+  service: auth-service
+- config:
+    anonymous: null
+    claims_to_verify:
+    - exp
+    cookie_names: []
+    header_names:
+    - Authorization
+    key_claim_name: iss
+    maximum_expiration: 0
+    realm: null
+    run_on_preflight: false
+    secret_is_base64: false
+    uri_param_names:
+    - jwt
+  enabled: true
+  instance_name: user-cart-crud-access-token-check
+  name: jwt
+  protocols:
+  - http
+  - https
+  route: user-cart-crud
+  service: user-cart-service
+services:
+- connect_timeout: 60000
+  enabled: true
+  host: cyber-punk-backend
+  name: auth-service
+  path: /
+  port: 8000
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - POST
+    name: logout
+    path_handling: v0
+    paths:
+    - /api/v1/auth/logout
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  - https_redirect_status_code: 426
+    methods:
+    - POST
+    name: refresh-token
+    path_handling: v0
+    paths:
+    - /api/v1/auth/refresh
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  - https_redirect_status_code: 426
+    methods:
+    - POST
+    name: social-login
+    path_handling: v0
+    paths:
+    - ~/api/v1/auth/[^/]+-login$
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000
+- connect_timeout: 60000
+  enabled: true
+  host: cyber-punk-backend
+  name: healthcheck
+  path: /
+  port: 8000
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - GET
+    name: healthcheck
+    path_handling: v0
+    paths:
+    - /healthcheck
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  enabled: true
+  host: cyber-punk-backend
+  name: product-service
+  path: /
+  port: 8000
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - GET
+    name: get-products
+    path_handling: v0
+    paths:
+    - /api/v1/products
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: false
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000
+- connect_timeout: 60000
+  enabled: true
+  host: cyber-punk-backend
+  name: user-cart-service
+  path: /
+  port: 8000
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - GET
+    - PUT
+    - OPTIONS
+    name: user-cart-crud
+    path_handling: v0
+    paths:
+    - ~/api/v1/users/[^/]+/cart$
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000

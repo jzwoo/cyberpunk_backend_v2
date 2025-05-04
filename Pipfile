@@ -11,6 +11,7 @@ httpx = "*"
 google-auth = "*"
 requests = "*"
 pyjwt = {extras = ["crypto"], version = "*"}
+pydantic = {extras = ["email"], version = "*"}
 
 [dev-packages]
 

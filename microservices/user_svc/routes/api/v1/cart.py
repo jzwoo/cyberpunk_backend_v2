@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.security import HTTPBearer
 
 from db.db import get_db
 from microservices.user_svc.dal.cart_DAL import CartDAL
@@ -9,8 +8,6 @@ from microservices.user_svc.routes.api.v1.auth import user_dal
 cart = APIRouter()
 
 cart_dal = CartDAL(db=get_db())
-
-auth_scheme = HTTPBearer()
 
 tags = ["Cart"]
 

@@ -18,6 +18,7 @@ def generate_access_token(user: UserOut):
         id=user.id,
         email=user.email,
         name=user.name,
+        iss="cyberpunk",
         iat=curr_datetime,
         exp=curr_datetime + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_DURATION),
     )
@@ -33,6 +34,7 @@ def generate_refresh_token(user: UserOut):
         id=user.id,
         email=user.email,
         name=user.name,
+        iss="cyberpunk",
         iat=curr_datetime,
         exp=curr_datetime + timedelta(minutes=REFRESH_TOKEN_EXPIRATION_DURATION),
     )
