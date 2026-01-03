@@ -7,8 +7,8 @@ from microservices.user_svc.models.user import UserOut
 
 SECRET_KEY = os.environ.get("JWT_SECRET")
 REFRESH_TOKEN_SECRET = os.environ.get("REFRESH_TOKEN_SECRET")
-ACCESS_TOKEN_EXPIRATION_DURATION = 1
-REFRESH_TOKEN_EXPIRATION_DURATION = 30
+ACCESS_TOKEN_EXPIRATION_SECONDS = 10
+REFRESH_TOKEN_EXPIRATION_SECONDS = 60
 
 
 def generate_access_token(user: UserOut):
@@ -20,7 +20,7 @@ def generate_access_token(user: UserOut):
         name=user.name,
         iss="cyberpunk",
         iat=curr_datetime,
-        exp=curr_datetime + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_DURATION),
+        exp=curr_datetime + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_SECONDS),
     )
 
     encoded_token = jwt.encode(raw_token.model_dump(), SECRET_KEY, algorithm="HS256")
@@ -36,7 +36,7 @@ def generate_refresh_token(user: UserOut):
         name=user.name,
         iss="cyberpunk",
         iat=curr_datetime,
-        exp=curr_datetime + timedelta(minutes=REFRESH_TOKEN_EXPIRATION_DURATION),
+        exp=curr_datetime + timedelta(minutes=REFRESH_TOKEN_EXPIRATION_SECONDS),
     )
 
     encoded_token = jwt.encode(
@@ -46,14 +46,15 @@ def generate_refresh_token(user: UserOut):
 
 
 def decode_access_token(encoded_token: str) -> Token:
+    # access token will be verified by gateway, application layer does not need to verify
     raw_token = jwt.decode(encoded_token, options={"verify_signature": False})
-    # raw_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
     return Token(**raw_token)
 
 
 def decode_refresh_token(encoded_token: str) -> Token:
-    raw_token = jwt.decode(encoded_token, options={"verify_signature": False})
-    # raw_token = jwt.decode(token, REFRESH_TOKEN_SECRET, algorithms=["HS256"])
+    # refresh token must be verified at application layer
+    raw_token = jwt.decode(encoded_token, REFRESH_TOKEN_SECRET, options={"verify_signature": True},
+                           algorithms=["HS256"])
 
     return Token(**raw_token)
